@@ -5,6 +5,8 @@ import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
 import prisma from '../../lib/prisma'
 import { Todo } from '@prisma/client'
+import { useReducer } from 'react'
+import { reducer } from '../../lib/state'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -22,6 +24,7 @@ type Props = {
 }
 
 export default function Home({ todos }: Props) {
+  const [state, dispatch] = useReducer(reducer, { todos })
   return (
     <>
       <Head>
