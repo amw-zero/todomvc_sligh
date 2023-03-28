@@ -13,7 +13,7 @@ import { makeAsyncStore, ActionMapping, Reducer } from "../../lib/state-lib"
 const inter = Inter({ subsets: ['latin'] })
 
 export const getStaticProps: GetStaticProps = async () => {
-  const todos = await prisma.todo.findMany();
+  const todos: Todo[] = []; // await prisma.todo.findMany();
 
   return {
     props: { todos },
