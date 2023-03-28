@@ -8,7 +8,7 @@ import { Todo } from '@prisma/client'
 import { useReducer } from 'react'
 // import { reducer, makeDispatch, State, Action, Reducer } from '../../lib/state'
 import { reducer, State, actionMapping } from '../../lib/state-async'
-import { makeState, ActionMapping, Reducer } from "../../lib/state-lib"
+import { makeState/*remove*/, makeAsyncStore, ActionMapping, Reducer } from "../../lib/state-lib"
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -28,7 +28,13 @@ type Props = {
 function useAsyncReducer<State, Action>(actionMapping: ActionMapping<State, Action>, reducer: Reducer<State, Action>, init: State) {
   const [state, dispatch] = useReducer(reducer, init);
   const getState = () => state;
-  return makeState(actionMapping, state, dispatch, getState);
+  
+  const store = {
+    dispatch: dispatch,
+    getState,
+  }
+  
+  return makeAsyncStore(actionMapping, state, store);
 }
 
 export default function Home({ todos }: Props) {
