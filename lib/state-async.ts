@@ -27,12 +27,9 @@ function createTodo(dispatch: SyncDispatch<Action>, getState: GetState<State>): 
   dispatch({ type: "create_todo", todo: { name: "Test", isComplete: false } });
   //  let todos = await createTodo();
 
-  console.log("Creating todo");
   return new Promise((resolve) => {
     setTimeout(async () => {
-      console.log("Dispatching response");
       dispatch({ type: "create_todo_complete", todo: { id: 1, name: "Test", isComplete: false }})
-      console.log("Resolving state");
       resolve(getState())
     }, 1000)
   });

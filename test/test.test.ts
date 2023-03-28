@@ -10,7 +10,7 @@ function makeTest(init: State, action: Action) {
 
 function makeTestStore<State, Action>(reducer: Reducer<State, Action>, init: State): Store<State, Action> {
   let store = init;
-  const dispatch = (action: Action) => { console.log("Mutating store"); store = reducer(init, action); console.log("After store mutation", { store }) };
+  const dispatch = (action: Action) => { store = reducer(init, action) };
 
   return {
     dispatch,
