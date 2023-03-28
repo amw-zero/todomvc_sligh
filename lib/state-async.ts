@@ -23,6 +23,8 @@ export type CreateTodoCompleteAction = {
 
 export type Action = CreateTodoAction | CreateTodoCompleteAction;
 
+type AsyncAction = CreateTodoAction
+
 function createTodo(dispatch: SyncDispatch<Action>, getState: GetState<State>): Promise<State> {
   dispatch({ type: "create_todo", todo: { name: "Test", isComplete: false } });
   //  let todos = await createTodo();
@@ -35,12 +37,10 @@ function createTodo(dispatch: SyncDispatch<Action>, getState: GetState<State>): 
   });
 }
 
-export function actionMapping(act: Action, dispatch: SyncDispatch<Action>, getState: GetState<State>): Promise<State> {
+export function actionMapping(act: AsyncAction, dispatch: SyncDispatch<Action>, getState: GetState<State>): Promise<State> {
   switch (act.type) {
   case "create_todo": return createTodo(dispatch, getState);
   }
-
-  return new Promise((resolve) => resolve(getState()));
 }
 
 export function reducer(state: State, action: Action): State {

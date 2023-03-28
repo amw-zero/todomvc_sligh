@@ -25,7 +25,7 @@ type Props = {
   todos: Todo[],
 }
 
-function useAsyncReducer<State, Action>(actionMapping: ActionMapping<State, Action>, reducer: Reducer<State, Action>, init: State) {
+function useAsyncReducer<State, AsyncAction, Action>(actionMapping: ActionMapping<State, AsyncAction, Action>, reducer: Reducer<State, Action>, init: State) {
   const [state, dispatch] = useReducer(reducer, init);
   const getState = () => state;
   
