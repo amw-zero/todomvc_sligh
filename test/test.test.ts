@@ -3,9 +3,15 @@ import { reducer, CreateTodoAction, State, Action, actionMapping } from '../lib/
 import { Reducer, Store, makeAsyncStore } from "../lib/state-lib";
 import fc from "fast-check";
 
-// Abstract test structure  
-function makeTest(init: State, action: Action) {
-  
+function testAction(init: State, action: Action, assertion: (s: State) => void, description: string) {
+  test(description, async () => {
+    const store = makeTestStore(reducer, init);
+    const [_, dispatch] = makeAsyncStore(actionMapping, init, store);
+
+    await dispatch(action);
+
+    assertion(store.getState());
+  })  
 }
 
 function makeTestStore<State, Action>(reducer: Reducer<State, Action>, init: State): Store<State, Action> {
@@ -18,21 +24,16 @@ function makeTestStore<State, Action>(reducer: Reducer<State, Action>, init: Sta
   }
 }
 
-test('reducer', async () => {
-  const init = { todos: [], isLoading: false };
-  const action: CreateTodoAction = { type: "create_todo", todo: { name: "T1", isComplete: false }};
-  const store = makeTestStore(reducer, init);
-  const [_, dispatch] = makeAsyncStore(actionMapping, init, store);
-
-  await dispatch(action);
-
-  console.log({store});
-
-  expect(store.getState()).toEqual({
-    isLoading: false,
-    todos: [
-      { id: 1, name: "Test", isComplete: false},
-    ],
-  });
-//  fc.assert(fc.property(fc.string(), (text) => contains(text, text)));
-})
+testAction(
+  { todos: [], isLoading: false },
+  { type: "create_todo", todo: { name: "T1", isComplete: false }},
+  (s: State) => {
+    expect(s).toEqual({
+      isLoading: false,
+      todos: [
+        { id: 1, name: "Test", isComplete: false},
+      ],
+    });
+  },
+  "Create todo"
+);
