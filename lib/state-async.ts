@@ -1,8 +1,18 @@
 import { Dispatch, SyncDispatch, GetState } from "./state-lib"
 import { Todo, Prisma } from "@prisma/client"
+import prisma from './prisma';
 
 export type State = {
   isLoading: boolean;
+  todos: Todo[];
+}
+
+export type GetTodosAction = {
+  type: "get_todos";
+}
+
+export type GetTodosCompleteAction = {
+  type: "get_todos_complete"
   todos: Todo[];
 }
 
@@ -21,25 +31,33 @@ export type CreateTodoCompleteAction = {
   todo: Todo;
 }
 
-export type Action = CreateTodoAction | CreateTodoCompleteAction;
+export type AsyncAction = CreateTodoAction | GetTodosAction;
 
-type AsyncAction = CreateTodoAction
+export type Action = AsyncAction | CreateTodoCompleteAction | GetTodosCompleteAction;
 
-function createTodo(dispatch: SyncDispatch<Action>, getState: GetState<State>): Promise<State> {
+async function createTodo(todoData: Prisma.TodoCreateInput, dispatch: SyncDispatch<Action>, getState: GetState<State>): Promise<State> {
   dispatch({ type: "create_todo", todo: { name: "Test", isComplete: false } });
-  //  let todos = await createTodo();
+  const resp = await fetch("api/create-todo", { method: "POST", body: JSON.stringify(todoData) });
+  const createdTodo = await resp.json();
 
-  return new Promise((resolve) => {
-    setTimeout(async () => {
-      dispatch({ type: "create_todo_complete", todo: { id: 1, name: "Test", isComplete: false }})
-      resolve(getState())
-    }, 1000)
-  });
+  dispatch({ type: "create_todo_complete", todo: createdTodo });
+
+  return getState();
 }
 
-export function actionMapping(act: AsyncAction, dispatch: SyncDispatch<Action>, getState: GetState<State>): Promise<State> {
+async function getTodos(dispatch: SyncDispatch<Action>, getState: GetState<State>): Promise<State> {
+  dispatch({ type: "get_todos" });
+  const resp = await fetch("/api/todos");
+  const { todos } = await resp.json();
+  dispatch({ type: "get_todos_complete", todos });
+
+  return getState();
+}
+
+export async function actionMapping(act: AsyncAction, dispatch: SyncDispatch<Action>, getState: GetState<State>): Promise<State> {
   switch (act.type) {
-  case "create_todo": return createTodo(dispatch, getState);
+  case "create_todo": return createTodo(act.todo, dispatch, getState);
+  case "get_todos": return getTodos(dispatch, getState);
   }
 }
 
@@ -55,6 +73,17 @@ export function reducer(state: State, action: Action): State {
       ...state,
       isLoading: false,
       todos: [...state.todos, action.todo]
+    }
+  case "get_todos":
+    return {
+      ...state,
+      isLoading: true,
+    }
+  case "get_todos_complete":
+    return {
+      ...state,
+      isLoading: false,
+      todos: action.todos,
     }
   }
 }
