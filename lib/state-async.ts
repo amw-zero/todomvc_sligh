@@ -35,29 +35,30 @@ export type AsyncAction = CreateTodoAction | GetTodosAction;
 
 export type Action = AsyncAction | CreateTodoCompleteAction | GetTodosCompleteAction;
 
-async function createTodo(todoData: Prisma.TodoCreateInput, dispatch: SyncDispatch<Action>, getState: GetState<State>): Promise<State> {
+async function createTodo(todoData: Prisma.TodoCreateInput, dispatch: SyncDispatch<Action>, getState: GetState<State>) {
   dispatch({ type: "create_todo", todo: { name: "Test", isComplete: false } });
   const resp = await fetch("api/create-todo", { method: "POST", body: JSON.stringify(todoData) });
   const createdTodo = await resp.json();
 
   dispatch({ type: "create_todo_complete", todo: createdTodo });
-
-  return getState();
 }
 
-async function getTodos(dispatch: SyncDispatch<Action>, getState: GetState<State>): Promise<State> {
+async function getTodos(dispatch: SyncDispatch<Action>, getState: GetState<State>) {
   dispatch({ type: "get_todos" });
   const resp = await fetch("/api/todos");
   const { todos } = await resp.json();
-  dispatch({ type: "get_todos_complete", todos });
 
-  return getState();
+  dispatch({ type: "get_todos_complete", todos });
 }
 
-export async function actionMapping(act: AsyncAction, dispatch: SyncDispatch<Action>, getState: GetState<State>): Promise<State> {
+export async function actionMapping(act: AsyncAction, dispatch: SyncDispatch<Action>, getState: GetState<State>) {
   switch (act.type) {
-  case "create_todo": return createTodo(act.todo, dispatch, getState);
-  case "get_todos": return getTodos(dispatch, getState);
+  case "create_todo": 
+    createTodo(act.todo, dispatch, getState);
+    break;
+  case "get_todos": 
+    getTodos(dispatch, getState);
+    break;
   }
 }
 
@@ -69,6 +70,7 @@ export function reducer(state: State, action: Action): State {
       isLoading: true,
     }
   case "create_todo_complete":
+    console.log("Create todo complete");
     return {
       ...state,
       isLoading: false,
