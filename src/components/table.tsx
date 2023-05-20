@@ -16,22 +16,6 @@ type TableProps<D> = {
   isLoading: boolean;
 }
 
-export function useTable() {
-  
-}
-
-
-/*
-  name |  isComplete
-  "t1" |  true
-  "t2" |  false
-  
- Usage:
-
-<Table data={data} columns={columns}>
-
-</Table>
-*/
 export function Table<D>({ rows, columns, isLoading }: TableProps<D>) {
   return isLoading ? (
     <p>Loading</p>
@@ -39,8 +23,8 @@ export function Table<D>({ rows, columns, isLoading }: TableProps<D>) {
     <table>
       <thead>
         <tr>
-          {columns.map((column) => (
-            <th key={column.name}>
+          {columns.map((column, i) => (
+            <th key={column.name === "" ? i : column.name}>
               {column.name}
             </th>
           ))}
@@ -50,7 +34,7 @@ export function Table<D>({ rows, columns, isLoading }: TableProps<D>) {
         {rows.map((row) => (
           <tr key={row.id}>
             {columns.map((column) => (
-              <td key={column.name}>{column.accessor(row.data)}</td>
+              <td key={`${row.id}${column.name}`}>{column.accessor(row.data)}</td>
             ))}
           </tr>
         ))}

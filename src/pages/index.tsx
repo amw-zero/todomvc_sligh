@@ -1,15 +1,13 @@
 import Head from 'next/head'
-import Image from 'next/image'
 import { GetStaticProps } from 'next'
 import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
 import prisma from '../../lib/prisma'
 import { Todo } from '@prisma/client'
-import { useContext, useEffect, useReducer, useRef } from 'react'
-  import { reducer, State, actionMapping } from '../../lib/state-async'
+import { useContext, useEffect } from 'react'
 import { Formik, Field, Form, ErrorMessage, FormikState } from 'formik';
 import { Table, TableRow, TableColumn } from '../components/table';
-import { StateContext, useAsyncReducer } from '../state';
+import { StateContext } from '../state';
 
 const inter = Inter({ subsets: ['latin'] })
 
