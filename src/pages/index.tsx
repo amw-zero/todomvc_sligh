@@ -5,11 +5,11 @@ import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
 import prisma from '../../lib/prisma'
 import { Todo } from '@prisma/client'
-import { useEffect, useReducer, useRef } from 'react'
+import { useContext, useEffect, useReducer, useRef } from 'react'
   import { reducer, State, actionMapping } from '../../lib/state-async'
-import { makeAsyncStore, ActionMapping, Reducer } from "../../lib/state-lib"
 import { Formik, Field, Form, ErrorMessage, FormikState } from 'formik';
-import { Table, TableRow } from '../components/table';
+import { Table, TableRow, TableColumn } from '../components/table';
+import { StateContext, useAsyncReducer } from '../state';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -26,33 +26,13 @@ type Props = {
   todos: Todo[],
 }
 
-function useAsyncReducer<State, AsyncAction, Action>(actionMapping: ActionMapping<State, AsyncAction, Action>, reducer: Reducer<State, Action>, init: State) {
-  const [state, dispatch] = useReducer(reducer, init);
-  const getState = () => state;
-
-  const stateRef = useRef(state);
-
-  useEffect(() => {
-    console.log("State changed, running stateRef effect")
-    stateRef.current = state;
-  }, [state]);
-  
-  const store = {
-    dispatch,
-    getState,
-  }
-    
-  return makeAsyncStore(actionMapping, state, store);
-}
-
 type TodoFormState = {
   name: string;
 }
 
 export default function Home({ todos }: Props) {
   console.log("Render running");
-  const [state, dispatch] = useAsyncReducer(actionMapping, reducer, { isLoading: false, todos });
-
+  const [state, dispatch] = useContext(StateContext);
   const initialTodo = {
     name: "",
   }
@@ -65,17 +45,7 @@ export default function Home({ todos }: Props) {
     dispatch({ type: "get_todos" });
   }, []);
 
-  const rows = [
-    {
-      data: { id: 1, name: "t1", isComplete: false },
-      id: "t1",
-    },
-    {
-      data: { id: 2, name: "t2", isComplete: true },
-      id: "t2",
-    },
-  ];
-  
+  let rows: TableRow<Todo>[] = [];
   const columns = [
     {
       name: "name",
@@ -87,6 +57,15 @@ export default function Home({ todos }: Props) {
     },
   ];
 
+  if (state.todos.length >= 0) {
+    rows = state.todos.map((todo: Todo) => (
+      {
+        data: todo,
+        id: todo.name,
+      }
+    ))
+  }
+
   return (
     <>
       <Head>
@@ -97,7 +76,7 @@ export default function Home({ todos }: Props) {
       <main className={styles.main}>
         <p>Todos</p>
         {state.todos.map(t => t.name)}
-        <Table rows={rows} columns={columns}/>
+        <Table rows={rows} columns={columns} isLoading={state.isLoading}/>
         <Formik
           initialValues={initialTodo}
           onSubmit={submitTodoForm}

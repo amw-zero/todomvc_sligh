@@ -11,7 +11,7 @@ export type Store<State, Action> = {
   getState: () => State;
 }
 
-export type Reducer<State, Action> = (s: State, a: Action) => State
+export type Reducer<S, Action> = (s: S, a: Action) => S
 
 export function makeAsyncStore<State, AsyncAction, SyncAction>(
   actionMapping: ActionMapping<State, AsyncAction, SyncAction>,

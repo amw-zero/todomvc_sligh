@@ -45,10 +45,12 @@ async function createTodo(todoData: Prisma.TodoCreateInput, dispatch: SyncDispat
 
 async function getTodos(dispatch: SyncDispatch<Action>, getState: GetState<State>) {
   dispatch({ type: "get_todos" });
-  const resp = await fetch("/api/todos");
-  const { todos } = await resp.json();
-
-  dispatch({ type: "get_todos_complete", todos });
+  setTimeout(async () => {
+    const resp = await fetch("/api/todos");
+    const { todos } = await resp.json();
+  
+    dispatch({ type: "get_todos_complete", todos });
+  }, 2000);
 }
 
 export async function actionMapping(act: AsyncAction, dispatch: SyncDispatch<Action>, getState: GetState<State>) {
@@ -63,6 +65,7 @@ export async function actionMapping(act: AsyncAction, dispatch: SyncDispatch<Act
 }
 
 export function reducer(state: State, action: Action): State {
+//  console.log("Reducer", { action: action.type });
   switch (action.type) {
   case "create_todo":
     return {

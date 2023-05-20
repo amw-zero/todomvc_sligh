@@ -1,6 +1,6 @@
 type ColumnAccessor<D> = (row: D) => React.ReactNode;
 
-type TableColumn<D> = {
+export type TableColumn<D> = {
   accessor: ColumnAccessor<D>;
   name: string;
 }
@@ -13,6 +13,7 @@ export type TableRow<D> = {
 type TableProps<D> = {
   rows: TableRow<D>[];
   columns: TableColumn<D>[];
+  isLoading: boolean;
 }
 
 export function useTable() {
@@ -31,8 +32,10 @@ export function useTable() {
 
 </Table>
 */
-export function Table<D>({ rows, columns }: TableProps<D>) {
-  return (
+export function Table<D>({ rows, columns, isLoading }: TableProps<D>) {
+  return isLoading ? (
+    <p>Loading</p>
+  ) : (
     <table>
       <thead>
         <tr>
