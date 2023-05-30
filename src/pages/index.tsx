@@ -1,10 +1,11 @@
-import Head from 'next/head'
-import { GetStaticProps } from 'next'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
-import prisma from '../../lib/prisma'
-import { Todo } from '@prisma/client'
-import { useContext, useEffect } from 'react'
+import Head from 'next/head';
+import { GetStaticProps } from 'next';
+import { Inter } from 'next/font/google';
+import styles from '@/styles/Home.module.css';
+import prisma from '../../lib/prisma';
+import { Todo } from '@prisma/client';
+import { useEffect } from 'react';
+import { useContextSelector } from 'use-context-selector';
 import { Formik, Field, Form, ErrorMessage, FormikState } from 'formik';
 import { Table, TableRow, TableColumn } from '../components/table';
 import { StateContext } from '../state';
@@ -28,9 +29,10 @@ type TodoFormState = {
   name: string;
 }
 
-export default function Home({ todos }: Props) {
-  console.log("Render running");
-  const [state, dispatch] = useContext(StateContext);
+export default function Home() {
+  const [todos, dispatch] = useContextSelector(StateContext, ([s, dispatch]) => [s.todos, dispatch]);
+  const isLoading = useContextSelector(StateContext, ([s]) => s.isLoading);
+
   const initialTodo = {
     name: "",
   }
@@ -55,8 +57,8 @@ export default function Home({ todos }: Props) {
     },
   ];
 
-  if (state.todos.length >= 0) {
-    rows = state.todos.map((todo: Todo) => (
+  if (todos.length >= 0) {
+    rows = todos.map((todo: Todo) => (
       {
         data: todo,
         id: todo.name,
@@ -73,8 +75,7 @@ export default function Home({ todos }: Props) {
       </Head>
       <main className={styles.main}>
         <p>Todos</p>
-        {state.todos.map(t => t.name)}
-        <Table rows={rows} columns={columns} isLoading={state.isLoading}/>
+        <Table rows={rows} columns={columns} isLoading={isLoading}/>
         <Formik
           initialValues={initialTodo}
           onSubmit={submitTodoForm}
